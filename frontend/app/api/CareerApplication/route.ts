@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
     console.error('Career application error:', error);
     
     // Better error messages
-    const errorMessage = error?.message || 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : String(error);
     if (errorMessage.includes('JSON.parse')) {
       return NextResponse.json(
         { message: 'Invalid request format. Please try again.', error: 'Invalid JSON' },
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { message: 'Error saving application. Please try again later.', error: error.message },
+      { message: 'Error saving application. Please try again later.', error: errorMessage },
       { status: 500 }
     );
   }

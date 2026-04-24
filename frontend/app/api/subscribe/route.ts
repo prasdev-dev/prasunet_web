@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     console.error('Newsletter subscription error:', error);
     
     // Better error messages
-    const errorMessage = error?.message || 'Unknown error';
+    const errorMessage = error instanceof Error ? error.message : String(error);
     if (errorMessage.includes('JSON.parse')) {
       return NextResponse.json(
         { message: 'Invalid request format. Please try again.' },
