@@ -9,5 +9,5 @@ name = "prasunet-website"
 binding = "KV"
 id = "default"
 
-# Build command is handled by next-on-pages automatically
-# The command: "next build && next-on-pages" will be run by Cloudflare Pages
+# Cloudflare Pages automatically handles asset serving from public/ folder
+# Next-on-pages adapter processes all static files correctly
