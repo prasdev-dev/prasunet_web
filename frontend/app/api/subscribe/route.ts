@@ -3,6 +3,21 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
+    // Verify environment variables
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error('❌ Supabase environment variables missing:', {
+        url: supabaseUrl ? '✓ Set' : '✗ Missing',
+        key: supabaseAnonKey ? '✓ Set' : '✗ Missing'
+      });
+      return NextResponse.json(
+        { message: 'Server configuration error: Supabase credentials not found. Please check Cloudflare Pages environment variables.' },
+        { status: 503 }
+      );
+    }
+
     const body = await request.json();
     const { email } = body;
 
@@ -62,6 +77,15 @@ export async function POST(request: NextRequest) {
         );
       }
 
+      // Check if table doesn't exist
+      if (error.message.includes('relation') || error.message.includes('does not exist')) {
+        console.error('Table does not exist - run supabase_newsletter.sql');
+        return NextResponse.json(
+          { message: 'Database not configured. Please run the setup SQL files in Supabase.' },
+          { status: 503 }
+        );
+      }
+
       return NextResponse.json(
         { message: `Failed to subscribe: ${error.message}` },
         { status: 500 }
@@ -79,6 +103,23 @@ export async function POST(request: NextRequest) {
     );
   } catch (error: any) {
     console.error('Newsletter subscription error:', error);
+    
+    // Better error messages
+    const errorMessage = error?.message || 'Unknown error';
+    if (errorMessage.includes('JSON.parse')) {
+      return NextResponse.json(
+        { message: 'Invalid request format. Please try again.' },
+        { status: 400 }
+      );
+    }
+    
+    if (errorMessage.includes('Supabase')) {
+      return NextResponse.json(
+        { message: 'Database connection error. Please check server configuration.' },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
       { message: 'Error subscribing to newsletter. Please try again later.' },
       { status: 500 }
