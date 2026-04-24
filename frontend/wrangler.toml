@@ -1,6 +1,8 @@
+#:schema node_modules/wrangler/config-schema.json
 name = "prasunet-website"
 main = "./.next/server/middleware.js"
 compatibility_date = "2024-12-16"
+compatibility_flags = ["nodejs_compat"]
 
 [env.production]
 name = "prasunet-website"
@@ -8,6 +10,3 @@ name = "prasunet-website"
 [[kv_namespaces]]
 binding = "KV"
 id = "default"
-
-# Cloudflare Pages automatically handles asset serving from public/ folder
-# Next-on-pages adapter processes all static files correctly
